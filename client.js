@@ -1,7 +1,7 @@
 
 codeTest = {
 	config: {
-		server: '127.0.0.1:8080'
+		server: '127.0.0.1:8090'
 	},
 	nickName: 'person1',
 	channel: 'defaultChannel',
@@ -62,7 +62,7 @@ function sendMsg(text) {
 		channel: codeTest.channel,
 		text: text
 	};
-	drawMessage({ author:'YOU', channel: data.channel, text: data.text, timestamp: new Date().toLocaleTimeString() });
+	//drawMessage({ author:'YOU', channel: data.channel, text: data.text, timestamp: new Date().toLocaleTimeString() });
 	return send2server('msg', data);
 };
 
@@ -84,10 +84,12 @@ function send2server(command, data) {
 
 
 function handleMessageFromServer(msg) {
-	if (typeof msg.command !== 'undefined' && typeof msg.data !== 'undefined') {
-		if (msg.command === 'messages') {
-			for (var n=0; n<msg.data; n+=1) {
-				drawMessage(msg.data[n]);
+	if (typeof msg.action.command !== 'undefined' && typeof msg.action.data !== 'undefined') {
+		if (msg.action.command === 'messages' || msg.action.command === 'msg') {
+			for (var n=0; n<msg.action.data.length; n+=1) {
+				if(msg.action.data[n].channel === codeTest.channel && codeTest.client.id === msg.id){
+					drawMessage(msg.action.data[n]);
+				}
 			}
 		}
 	}
@@ -95,6 +97,7 @@ function handleMessageFromServer(msg) {
 
 
 function drawMessage(data) {
+	data.timestamp = data.timestamp || new Date().toLocaleTimeString();
 	var msgString = '<span>{' + data.channel + '@' + data.timestamp + '} [' + data.author + '] ' + data.text + '</span><br/>';
 	jQuery('#messages').append(msgString);
 };

@@ -60,11 +60,15 @@ function setNick() {
 
 
 function sendMsg(text) {
+	//Clear input message field
+	$('#message').val('');
+
 	var data = {
 		author: codeTest.nickName,
 		channel: codeTest.channel,
 		text: text
 	};
+	
 	//drawMessage({ author:'YOU', channel: data.channel, text: data.text, timestamp: new Date().toLocaleTimeString() });
 	return send2server('msg', data);
 };

@@ -1,7 +1,7 @@
 
 codeTest = {
 	config: {
-		server: '127.0.0.1:8090'
+		server: '127.0.0.1:8091'
 	},
 	nickName: 'person1',
 	channel: 'defaultChannel',
@@ -44,6 +44,9 @@ function joinChannel() {
 	var channel = jQuery('#channel').val();
 	jQuery('#messages').empty();codeTest.channel = channel;
 	drawMessage({ author:'system', channel: codeTest.channel, text: 'welcome to a new channel (' + channel + '), ' + codeTest.nickName, timestamp: new Date().toLocaleTimeString() });
+	if(codeTest.client && codeTest.client.id){
+		send2server('Top10Msg', {text: ''});
+	}
 	return codeTest.channel;
 };
 
@@ -75,7 +78,8 @@ function send2server(command, data) {
 				{
 					author: codeTest.nickName,
 					channel: codeTest.channel,
-					text: data.text
+					text: data.text,
+					timestamp: new Date().toLocaleTimeString()
 				}
 			]
 		}
@@ -118,13 +122,16 @@ function setupSocket() {
 			jQuery('#wsstatus').text(Date.now() + ' connection error');
 		});
 		testSocket.on('open', function(e) {
-			jQuery('#wsstatus').text(Date.now() + ' connection open');
-			console.log('[open]');
-			testSocket.on('message', function(msg, e) {
-				console.log('[message]');
-				console.log(msg);
-				handleMessageFromServer(msg);
-			});
+			if(codeTest.client.id){
+				jQuery('#wsstatus').text(Date.now() + ' connection open');
+				console.log('[open]');
+				send2server('Top10Msg', {text: ''});
+			}
+		});
+		testSocket.on('message', function(msg, e) {
+			console.log('[message]');
+			console.log(msg);
+			handleMessageFromServer(msg);
 		});
 		jQuery('#wsstatus').text(Date.now() + ' connecting to [' + codeTest.config.server + ']');
 	} catch(err) {
